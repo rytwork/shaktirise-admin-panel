@@ -17,6 +17,7 @@ export default function Customers() {
     const [status, setStatus] = useState("pending");
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(false);
+    const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
 
     const fetchCustomers = async (searchValue = "") => {
 
@@ -26,7 +27,6 @@ export default function Customers() {
 
         if (searchValue) {
 
-            // Search by Aadhaar
             q = query(
                 collection(db, "customers"),
                 where("adharNumber", "==", searchValue)
@@ -45,7 +45,7 @@ export default function Customers() {
 
         const snapshot = await getDocs(q);
 
-        const data:any[] = [];
+        const data: any[] = [];
 
         snapshot.forEach((doc) => {
             data.push({ id: doc.id, ...doc.data() });
@@ -81,7 +81,7 @@ export default function Customers() {
                     Customers
                 </h1>
 
-                {/* Search Section */}
+                {/* Search */}
                 <div className="flex gap-2">
 
                     <input
@@ -91,9 +91,7 @@ export default function Customers() {
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                                handleSearch();
-                            }
+                            if (e.key === "Enter") handleSearch();
                         }}
                     />
 
@@ -108,15 +106,14 @@ export default function Customers() {
 
             </div>
 
-            {/* Status Switch */}
+            {/* Status Buttons */}
             <div className="flex gap-3 mb-6">
 
                 <button
-                    className={`px-4 py-2 rounded ${
-                        status === "pending"
+                    className={`px-4 py-2 rounded ${status === "pending"
                             ? "bg-indigo-600 text-white"
                             : "bg-gray-300 text-gray-700"
-                    }`}
+                        }`}
                     onClick={() => {
                         setStatus("pending");
                         setSearch("");
@@ -126,11 +123,10 @@ export default function Customers() {
                 </button>
 
                 <button
-                    className={`px-4 py-2 rounded ${
-                        status === "active"
+                    className={`px-4 py-2 rounded ${status === "active"
                             ? "bg-teal-600 text-white"
                             : "bg-gray-300 text-gray-700"
-                    }`}
+                        }`}
                     onClick={() => {
                         setStatus("active");
                         setSearch("");
@@ -179,7 +175,13 @@ export default function Customers() {
 
                         {customers.map((c) => (
 
-                            <tr key={c.id} className="border-t">
+                            <tr
+                                key={c.id}
+                                className="border-t hover:bg-gray-50 cursor-pointer"
+                                onClick={() => {
+                                    setSelectedCustomer(c);
+                                }}
+                            >
 
                                 <td className="p-3 text-rose-700">{c.name}</td>
 
@@ -192,11 +194,10 @@ export default function Customers() {
                                 <td>
 
                                     <span
-                                        className={`px-2 py-1 rounded text-xs ${
-                                            c.status === "active"
+                                        className={`px-2 py-1 rounded text-xs ${c.status === "active"
                                                 ? "bg-emerald-100 text-emerald-700"
                                                 : "bg-orange-100 text-orange-700"
-                                        }`}
+                                            }`}
                                     >
                                         {c.status}
                                     </span>
@@ -208,17 +209,13 @@ export default function Customers() {
                                     {c.status === "pending" && (
 
                                         <button
-                                            className="bg-cyan-500 text-white px-3 py-1 rounded text-xs"
-                                            onClick={() =>
-                                                fetch("/api/admin/verify-customer", {
-                                                    method: "POST",
-                                                    body: JSON.stringify({
-                                                        code: c.verificationCode
-                                                    })
-                                                }).then(() => fetchCustomers())
-                                            }
+                                            className="bg-indigo-600 text-white px-3 py-1 rounded text-xs"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedCustomer(c);
+                                            }}
                                         >
-                                            Verify
+                                            View
                                         </button>
 
                                     )}
@@ -227,9 +224,10 @@ export default function Customers() {
 
                                         <button
                                             className="bg-rose-600 text-white px-3 py-1 rounded text-xs"
-                                            onClick={() =>
-                                                window.open(`/api/customer/brochure/${c.id}`)
-                                            }
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                window.open(`/api/customer/brochure/${c.id}`);
+                                            }}
                                         >
                                             Admission Brochure
                                         </button>
@@ -247,6 +245,136 @@ export default function Customers() {
                 </table>
 
             </div>
+
+            {/* Customer Detail Modal */}
+            {selectedCustomer && (
+
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+
+                    <div className="bg-white rounded-xl shadow-xl p-6 w-[700px] max-h-[90vh] overflow-y-auto">
+
+                        <h2 className="text-xl font-semibold text-blue-600 mb-4">
+                            Customer Details
+                        </h2>
+
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+
+                            <div>
+                                <span className="text-gray-500">Name</span>
+                                <p className="font-medium text-green-600">{selectedCustomer.name}</p>
+                            </div>
+
+                            <div>
+                                <span className="text-gray-500">Phone</span>
+                                <p className="font-medium text-green-600">{selectedCustomer.phone}</p>
+                            </div>
+
+                            <div>
+                                <span className="text-gray-500">Aadhaar</span>
+                                <p className="font-medium text-green-600">{selectedCustomer.adharNumber}</p>
+                            </div>
+
+                            <div>
+                                <span className="text-gray-500">Gender</span>
+                                <p className="font-medium text-green-600">{selectedCustomer.gender}</p>
+                            </div>
+
+                            <div>
+                                <span className="text-gray-500">Agent</span>
+                                <p className="font-medium text-green-600">{selectedCustomer.createdByAgent}</p>
+                            </div>
+
+                            <div>
+                                <span className="text-gray-500">Created At</span>
+                                <p className="font-medium text-green-600">
+                                    {selectedCustomer.createdAt
+                                        ? new Date(selectedCustomer.createdAt.seconds * 1000).toLocaleString()
+                                        : "-"}
+                                </p>
+                            </div>
+
+                            <div>
+                                <span className="text-gray-500">Verification Code</span>
+                                <p className="font-medium text-green-600">{selectedCustomer.verificationCode}</p>
+                            </div>
+
+                        </div>
+
+                        {/* Photo */}
+                        <div className="mt-6">
+
+                            <p className="text-gray-600 mb-2 font-medium">
+                                Applicant Photo
+                            </p>
+
+                            <img
+                                src={selectedCustomer.photoUrl}
+                                className="rounded-lg border w-40"
+                            />
+
+                        </div>
+
+                        {/* Certificate */}
+                        <div className="mt-6">
+
+                            <p className="text-gray-600 mb-2 font-medium">
+                                Father Income Certificate
+                            </p>
+
+                            <img
+                                src={selectedCustomer.fatherIncomeCertificate}
+                                className="rounded-lg border w-60"
+                            />
+
+                            <a
+                                href={selectedCustomer.fatherIncomeCertificate}
+                                target="_blank"
+                                className="text-blue-600 text-sm block mt-2"
+                            >
+                                Download Certificate
+                            </a>
+
+                        </div>
+
+                        {/* Buttons */}
+                        <div className="flex justify-end gap-3 mt-6">
+
+                            <button
+                                className="px-4 py-2 rounded bg-red-300"
+                                onClick={() => setSelectedCustomer(null)}
+                            >
+                                Close
+                            </button>
+
+
+                            {selectedCustomer.status === "pending" && (
+                            <button
+                                className="px-4 py-2 rounded bg-green-600 text-white"
+                                onClick={() => {
+
+                                    fetch("/api/admin/verify-customer", {
+                                        method: "POST",
+                                        body: JSON.stringify({
+                                            code: selectedCustomer.verificationCode
+                                        })
+                                    }).then(() => {
+                                        setSelectedCustomer(null);
+                                        fetchCustomers();
+                                    });
+
+                                }}
+                            >
+                                Verify Customer
+                            </button>
+                            )}
+                            
+                        </div>
+                            
+                    </div>
+
+                </div>
+
+            )}
 
         </div>
 
