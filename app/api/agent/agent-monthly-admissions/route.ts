@@ -9,10 +9,10 @@ import {
 } from "firebase/firestore";
 
 export async function GET(req: Request) {
-
     try {
 
-        const { agentId, page = 1, limit = 10 } = Object.fromEntries(new URL(req.url).searchParams);
+        const { agentId, status, page = "1", limit = "10" } =
+            Object.fromEntries(new URL(req.url).searchParams);
 
         if (!agentId) {
             return NextResponse.json(
@@ -21,13 +21,23 @@ export async function GET(req: Request) {
             );
         }
 
+        if (!status) {
+            return NextResponse.json(
+                { message: "status is required" },
+                { status: 400 }
+            );
+
+        }
+
+
         const pageNumber = Number(page);
         const limitNumber = Number(limit);
         const offset = (pageNumber - 1) * limitNumber;
 
-        const q = query(
+        let q = query(
             collection(db, "customers"),
             where("createdByAgent", "==", agentId),
+            where("status", "==", status),
             orderBy("createdAt", "desc")
         );
 
@@ -67,9 +77,11 @@ export async function GET(req: Request) {
             month,
             total: monthly[month].length,
             admissions: monthly[month].map((admission: any) => ({
-            ...admission,
-            addmissionDate: admission.addmissionDate?.toDate().toLocaleString() || null,
-            createdAt: admission.createdAt?.toDate().toLocaleString() || null
+                ...admission,
+                addmissionDate:
+                    admission.addmissionDate?.toDate().toLocaleString() || null,
+                createdAt:
+                    admission.createdAt?.toDate().toLocaleString() || null
             }))
         }));
 
@@ -89,5 +101,4 @@ export async function GET(req: Request) {
         );
 
     }
-
 }
