@@ -34,6 +34,8 @@ export async function GET(req: Request) {
         valid: true,
         customer: {
             name: data.name,
+            dob: data.dob,
+            adharNumber: data.adharNumber,
             photoUrl: data.photoUrl,
             phone: data.phone,
             gender: data.gender,

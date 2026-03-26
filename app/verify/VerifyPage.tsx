@@ -84,6 +84,16 @@ export default function VerifyPage() {
             <div className="font-semibold">Phone</div>
             <div>{customer.phone}</div>
 
+            <div className="font-semibold">Date of Birth</div>
+            <div>{new Date(customer.dob).toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                })}</div>
+
+            <div className="font-semibold">Adhar Number</div>
+            <div>{customer.adharNumber}</div>
+
             <div className="font-semibold">Gender</div>
             <div>{customer.gender}</div>
 
