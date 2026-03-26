@@ -119,13 +119,11 @@ export async function GET(
         drawLine("Aadhar Number", data.adharNumber);
         drawLine(
             "Date of Birth",
-            data.dob
-                ? new Date(data.dob).toLocaleDateString("en-GB", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                })
-                : "-"
+            data.dob.toDate().toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+            })
         );
 
         drawLine("Phone", data.phone);
@@ -195,26 +193,26 @@ export async function GET(
 
         page.drawText("Customer Signature:", {
             x: 60,
-            y: 210,
+            y: 200,
             size: 14,
             font: normalFont,
         });
 
         page.drawLine({
-            start: { x: 200, y: 210 },
-            end: { x: 400, y: 210 },
+            start: { x: 200, y: 200 },
+            end: { x: 400, y: 200 },
         });
 
         page.drawText("Agent Signature:", {
             x: 60,
-            y: 190,
+            y: 160,
             size: 14,
             font: normalFont,
         });
 
         page.drawLine({
-            start: { x: 200, y: 190 },
-            end: { x: 400, y: 190 },
+            start: { x: 200, y: 160 },
+            end: { x: 400, y: 160 },
         });
 
         /* Watermark */

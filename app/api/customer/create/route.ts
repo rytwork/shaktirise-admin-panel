@@ -112,7 +112,7 @@ export async function POST(req: Request) {
         await setDoc(doc(db, "customers", body.adharNumber), {
             name: body.name,
             phone: body.phone,
-            dob: body.dob,
+            dob: new Date(body.dob),
             adharNumber: body.adharNumber,
             gender: "female",
 
