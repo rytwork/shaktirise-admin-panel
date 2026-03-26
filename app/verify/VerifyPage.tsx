@@ -85,11 +85,19 @@ export default function VerifyPage() {
             <div>{customer.phone}</div>
 
             <div className="font-semibold">Date of Birth</div>
-            <div>{new Date(customer.dob).toLocaleDateString("en-GB", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                })}</div>
+            <div>
+              {customer.dob
+                ? new Date(
+                  customer.dob?.seconds
+                    ? customer.dob.seconds * 1000 // Firestore timestamp
+                    : customer.dob // string/date
+                ).toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })
+                : "-"}
+            </div>
 
             <div className="font-semibold">Adhar Number</div>
             <div>{customer.adharNumber}</div>
