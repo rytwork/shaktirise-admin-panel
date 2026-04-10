@@ -27,7 +27,7 @@ export async function POST(req: Request) {
 
     // 📩 Send SMS
     await client.messages.create({
-      body: `Your OTP is ${otp}`,
+      body: `Your ShaktiRise registration OTP is ${otp}. Kindly share this OTP with your agent to complete the registration process. Do not share it with anyone else.`,
       messagingServiceSid: process.env.TWILIO_MESSAGING_SERVICE_SID,
       to: formattedPhone,
     });
